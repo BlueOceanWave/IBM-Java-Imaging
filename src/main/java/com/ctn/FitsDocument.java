@@ -10,9 +10,83 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.*;
 
-public class FitsViewer {
+public class FitsDocument {
 
-    public static void main(String[] args) {
+    //Returns image portion of FITS file as a BufferedImage
+    public static BufferedImage getImagePNG(String filePath)
+    {
+        Fits fits;
+        BasicHDU imageHDU;
+        Object data = null;
+        BufferedImage image = null;
+
+
+        //Read Fits file
+        try {
+            fits = new Fits(filePath);
+            imageHDU = fits.getHDU(0);
+            data = imageHDU.getKernel();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        // Check if the data is a 2D array (image)
+        if (data instanceof float[][]) {
+            
+            //Convert data to numbers
+            float[][] imageData = (float[][]) data;
+            
+            //Get image width and height
+            int height = imageData.length;
+            int width = imageData[0].length;
+        
+            //Construct and populate Buffered imagme
+            image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    float pixelValue = imageData[y][x];
+                    int normalizedPixel = Math.min((int) pixelValue, 255); //Cap values at 255
+                    int pixel = (normalizedPixel << 16) | (normalizedPixel << 8) | normalizedPixel; //Format for png
+                    image.setRGB(x, y, (int) pixel); //Update BufferedImage 
+                }
+            }
+        }
+        
+        //Return BufferedImage
+        return image;
+    
+    }
+    
+    
+    public static void getHeaderData(String filePath)
+    {
+        Fits fits;
+        BasicHDU imageHDU = null;
+
+
+        //Read Fits file
+        try {
+            fits = new Fits(filePath);
+            imageHDU = fits.getHDU(0);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        //Read header
+        Cursor<String, HeaderCard> header = imageHDU.getHeader().iterator();
+        while(header.hasNext()){
+            System.out.println(header.next().toString().trim());
+        }
+            
+    }
+
+  
+    public static void main(String[] args) 
+    {
         try {
             Fits fits = new Fits("C:/Users/nadee/Downloads/RemoteAstrophotography-com-NGC2070-narrowband/Tarantula Nebula-oiii.fit");
             BasicHDU imageHDU = fits.getHDU(0);
@@ -96,24 +170,6 @@ public class FitsViewer {
             }
 
 
-
-            /*
-            // Check if the data is a 2D array (image)
-            if (data instanceof float[][]) {
-                float[][] imageData = (float[][]) data;
-                
-                // Process the image data here
-                System.out.println("(rows, cols): (" + imageData[0].length + ", " + imageData.length + ")");
-
-                for (int i = 0; i<100; i++){
-                    for (int j = 0; j<100; j++){
-                        System.out.print(imageData[i][j]+ ", ");
-                    }
-
-                    System.out.println();
-                }
-            }
-            */
 
             fits.close();
         } catch (Exception e) {
