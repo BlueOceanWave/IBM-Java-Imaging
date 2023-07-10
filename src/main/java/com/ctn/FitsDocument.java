@@ -16,7 +16,7 @@ public class FitsDocument {
     public static BufferedImage getImagePNG(String filePath)
     {
         Fits fits;
-        BasicHDU imageHDU;
+        BasicHDU imageHDU = null;
         Object data = null;
         BufferedImage image = null;
 
@@ -31,7 +31,14 @@ public class FitsDocument {
             e.printStackTrace();
         }
 
-
+        // Get the image data from the HDU
+        /* 
+            Cursor<String, HeaderCard> header = imageHDU.getHeader().iterator();
+            
+            while(header.hasNext()){
+                System.out.println(header.next().toString().trim());
+            }
+            */
         // Check if the data is a 2D array (image)
         if (data instanceof float[][]) {
             
@@ -60,7 +67,7 @@ public class FitsDocument {
     
     }
     
-    
+    //Prints out header information
     public static void getHeaderData(String filePath)
     {
         Fits fits;
@@ -88,7 +95,7 @@ public class FitsDocument {
     public static void main(String[] args) 
     {
         try {
-            Fits fits = new Fits("C:/Users/nadee/Downloads/RemoteAstrophotography-com-NGC2070-narrowband/Tarantula Nebula-oiii.fit");
+            Fits fits = new Fits("ExampleFitsFiles\\Tarantula Nebula-oiii.fit");
             BasicHDU imageHDU = fits.getHDU(0);
             Object data = imageHDU.getKernel();
             // Access and process FITS image data

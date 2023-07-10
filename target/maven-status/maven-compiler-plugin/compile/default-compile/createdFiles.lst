@@ -1,2 +1,3 @@
-main\java\com\ctn\Simple.class
-com\ctn\FitsTesting.class
+com\ctn\FitsApp.class
+com\ctn\FitsDocument.class
+com\ctn\JSystemFileChooser.class
